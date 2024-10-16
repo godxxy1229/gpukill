@@ -13,7 +13,7 @@
 
 ## 시스템 요구 사항
 - NVIDIA GPU 및 드라이버 설치
-- Linux 운영체제
+- Linux 운영체제 (테스트 환경: Rocky9)
 - `ps`, `awk`, `sort`, `sed`, `bash` 등 기본 명령어 지원
 
 ## 설치 방법
