@@ -41,6 +41,6 @@ if [ "$LARGEST_MEMORY" -gt "$MEMORY_LIMIT" ]; then
         echo "프로세스 종료가 취소되었습니다."
     fi
 else
-    echo "프로세스 $LARGEST_PID가 $LARGEST_MEMORY MiB의 GPU 메모리를 사용 중이며, 설정된 기준인 $MEMORY_LIMIT MiB를 초과하지 않습니다."
+    echo "$LARGEST_PID번 프로세스가 $LARGEST_MEMORY MiB의 GPU 메모리를 사용 중이며, 설정된 기준인 $MEMORY_LIMIT MiB를 초과하지 않습니다."
     echo "프로세스를 종료하지 않습니다."
 fi
