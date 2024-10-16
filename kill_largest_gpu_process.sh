@@ -19,8 +19,8 @@ fi
 # PID를 기반으로 사용자를 확인합니다.
 USER=$(ps -o user= -p $LARGEST_PID 2>/dev/null)
 
-# 메모리 사용량 기준 (예: 128 MiB 이상일 때만 종료)
-MEMORY_LIMIT=128
+# 메모리 사용량 기준 (예: 32 MiB 이상일 때만 종료)
+MEMORY_LIMIT=32
 
 # 가장 큰 메모리 사용 프로세스의 정보를 출력
 echo "가장 많은 메모리를 사용하는 프로세스 정보:"
@@ -41,6 +41,6 @@ if [ "$LARGEST_MEMORY" -gt "$MEMORY_LIMIT" ]; then
         echo "프로세스 종료가 취소되었습니다."
     fi
 else
-    echo "프로세스 $LARGEST_PID가 $LARGEST_MEMORY MiB의 GPU 메모리를 사용 중이며, 설정된 기준인 $MEMORY_LIMIT MiB를 초과하지 않습니다."
+    echo "$LARGEST_PID번 프로세스가 $LARGEST_MEMORY MiB의 GPU 메모리를 사용 중이며, 설정된 기준인 $MEMORY_LIMIT MiB를 초과하지 않습니다."
     echo "프로세스를 종료하지 않습니다."
 fi
