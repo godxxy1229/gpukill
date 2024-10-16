@@ -19,8 +19,8 @@ fi
 # PID를 기반으로 사용자를 확인합니다.
 USER=$(ps -o user= -p $LARGEST_PID 2>/dev/null)
 
-# 메모리 사용량 기준 (예: 128 MiB 이상일 때만 종료)
-MEMORY_LIMIT=128
+# 메모리 사용량 기준 (예: 32 MiB 이상일 때만 종료)
+MEMORY_LIMIT=32
 
 # 가장 큰 메모리 사용 프로세스의 정보를 출력
 echo "가장 많은 메모리를 사용하는 프로세스 정보:"
