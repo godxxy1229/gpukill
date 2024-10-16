@@ -19,7 +19,7 @@
 ## 설치 방법
 1. 스크립트를 `/usr/local/bin`에 복사:
     ```bash
-    sudo cp kill_gpu_process.sh /usr/local/bin/gpukill
+    sudo cp gpukill /usr/local/bin/gpukill
     ```
 2. 스크립트에 실행 권한 부여:
     ```bash
