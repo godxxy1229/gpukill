@@ -63,7 +63,7 @@ terminate_largest_gpu_process() {
 
 # 메인 스크립트 실행
 if check_gpu_idle; then
-    echo "GPU $GPU_INDEX번 GPU가 유휴 상태로 감지되었습니다. (전력:${POWER_DRAW} /${POWER_LIMIT}W, 사용률:${GPU_UTIL}%, 메모리 사용량:${MEMORY_USED}MiB)"
+    echo "$GPU_INDEX번 GPU가 유휴 상태로 감지되었습니다. (전력:${POWER_DRAW} /${POWER_LIMIT}W, 사용률:${GPU_UTIL}%, 메모리 사용량:${MEMORY_USED}MiB)"
     terminate_largest_gpu_process
 else
     echo "$GPU_INDEX번 GPU가 사용 중입니다. (전력:${POWER_DRAW} /${POWER_LIMIT}W, 사용률:${GPU_UTIL}%, 메모리 사용량:${MEMORY_USED}MiB)"
