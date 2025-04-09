@@ -2,7 +2,7 @@
 
 A shell script to monitor and manage GPU memory usage. It identifies idle GPUs and helps you terminate the process that is consuming the most GPU memory.
 
-> 🔗 Inspired by: https://godxxy1229.tistory.com/100
+> 🔗 https://godxxy1229.tistory.com/100
 
 ---
 
@@ -96,10 +96,3 @@ Process 124113 has been terminated.
   ```bash
   alias gpukill="sh /usr/local/bin/gpukill"
   ```
-
----
-
-## 📄 License
-
-This project is open-source and available under the MIT License.
-```
