@@ -1,40 +1,40 @@
 #!/bin/bash
 
-# GPU의 유휴 상태를 감지하고, 유휴 상태일 경우 가장 많은 메모리를 사용하는 프로세스를 종료하는 스크립트
+# Script to detect GPU idle state and terminate the process using the most GPU memory if idle
 
-# nvidia-smi로 GPU 상태를 확인
+# Check GPU status using nvidia-smi
 GPU_INFO=$(nvidia-smi --query-gpu=index,power.draw,power.limit,utilization.gpu,memory.used --format=csv,noheader,nounits)
 
-# 파싱해서 GPU 정보 추출
+# Parse and extract GPU information
 GPU_INDEX=$(echo "$GPU_INFO" | awk -F',' '{print $1}')
-POWER_DRAW=$(echo "$GPU_INFO" | awk -F',' '{print $2}')   # 현재 전력 사용량 (W)
-POWER_LIMIT=$(echo "$GPU_INFO" | awk -F',' '{print $3}')  # 최대 전력 용량 (W)
-GPU_UTIL=$(echo "$GPU_INFO" | awk -F',' '{print $4}')     # GPU 사용률 (%)
-MEMORY_USED=$(echo "$GPU_INFO" | awk -F',' '{print $5}')  # 메모리 사용량 (MiB)
+POWER_DRAW=$(echo "$GPU_INFO" | awk -F',' '{print $2}')   # Current power consumption (W)
+POWER_LIMIT=$(echo "$GPU_INFO" | awk -F',' '{print $3}')  # Power limit (W)
+GPU_UTIL=$(echo "$GPU_INFO" | awk -F',' '{print $4}')     # GPU utilization (%)
+MEMORY_USED=$(echo "$GPU_INFO" | awk -F',' '{print $5}')  # Memory usage (MiB)
 
-# 유휴 상태 기준 설정
-IDLE_POWER_THRESHOLD=100    # 100W 이하일 경우 유휴 상태로 간주
-IDLE_UTIL_THRESHOLD=20      # 20% 이하일 경우 유휴 상태로 간주
-IDLE_MEMORY_THRESHOLD=8192  # 8192MiB 이하일 경우 유휴 상태로 간주
+# Thresholds for defining GPU idle state
+IDLE_POWER_THRESHOLD=100    # Consider idle if power < 100W
+IDLE_UTIL_THRESHOLD=20      # Consider idle if utilization < 20%
+IDLE_MEMORY_THRESHOLD=8192  # Consider idle if memory usage < 8192MiB
 
-# 유휴 상태 감지 함수
+# Function to check if the GPU is idle
 check_gpu_idle() {
     if (( $(echo "$POWER_DRAW < $IDLE_POWER_THRESHOLD" | bc -l) )) && \
        (( "$GPU_UTIL" < "$IDLE_UTIL_THRESHOLD" )) && \
        (( "$MEMORY_USED" < "$IDLE_MEMORY_THRESHOLD" )); then
-        return 0  # 유휴 상태로 간주
+        return 0  # GPU is considered idle
     else
-        return 1  # 사용 중인 상태로 간주
+        return 1  # GPU is considered in use
     fi
 }
 
-# 가장 많은 메모리를 사용하는 프로세스를 종료하는 함수
+# Function to terminate the process using the most GPU memory
 terminate_largest_gpu_process() {
     LARGEST_INFO=$(nvidia-smi --query-compute-apps=pid,process_name,used_memory --format=csv,noheader,nounits | sort -k3 -nr | head -n 1)
 
-    # 유효한 프로세스가 없는 경우를 체크
+    # Check if any GPU process is found
     if [ -z "$LARGEST_INFO" ]; then
-        echo "현재 실행 중인 GPU 프로세스가 없습니다."
+        echo "No GPU processes are currently running."
         return
     fi
 
@@ -44,30 +44,30 @@ terminate_largest_gpu_process() {
 
     USER=$(ps -o user= -p $LARGEST_PID 2>/dev/null)
 
-    # 종료 여부를 사용자에게 확인
-    echo "가장 많은 메모리를 사용하는 프로세스 정보:"
-    echo "사용자: ${USER:-알 수 없음}"
+    # Ask for user confirmation before killing the process
+    echo "Process using the most GPU memory:"
+    echo "User: ${USER:-Unknown}"
     echo "PID: $LARGEST_PID"
-    echo "프로세스 이름: $PROCESS_NAME"
-    echo "GPU 메모리 사용량: $LARGEST_MEMORY MiB"
+    echo "Process Name: $PROCESS_NAME"
+    echo "GPU Memory Usage: $LARGEST_MEMORY MiB"
 
-    read -p "이 프로세스를 정말로 종료하시겠습니까? 종료 전 프로세스 사용자에게 확인받으세요. [y/N]: " CONFIRM
+    read -p "Are you sure you want to terminate this process? Please confirm with the user before proceeding. [y/N]: " CONFIRM
     if [[ "$CONFIRM" =~ ^[Yy]$ ]]; then
-        echo "$LARGEST_PID번 프로세스(사용자: ${USER:-알 수 없음})를 종료합니다..."
+        echo "Terminating process $LARGEST_PID (User: ${USER:-Unknown})..."
         kill -9 $LARGEST_PID
-        echo "$LARGEST_PID번 프로세스가 종료되었습니다."
+        echo "Process $LARGEST_PID has been terminated."
     else
-        echo "프로세스 종료가 취소되었습니다."
+        echo "Termination cancelled."
     fi
 }
 
-# 메인 스크립트 실행
+# Main script execution
 if check_gpu_idle; then
-    echo "$GPU_INDEX번 GPU가 유휴 상태로 감지되었습니다. (전력:${POWER_DRAW} /${POWER_LIMIT}W, 사용률:${GPU_UTIL}%, 메모리 사용량:${MEMORY_USED}MiB)"
+    echo "GPU $GPU_INDEX is detected as idle. (Power: $POWER_DRAW / $POWER_LIMIT W, Utilization: $GPU_UTIL%, Memory: $MEMORY_USED MiB)"
     terminate_largest_gpu_process
 else
-    echo "$GPU_INDEX번 GPU가 사용 중입니다. (전력:${POWER_DRAW} /${POWER_LIMIT}W, 사용률:${GPU_UTIL}%, 메모리 사용량:${MEMORY_USED}MiB)"
-    echo "GPU가 사용중인것으로 확인되므로, 프로세스 종료를 권장하지 않습니다."
-    read -p "사용중인 프로세스 종료 작업을 수행합니까? [y/N]: " CONFIRM
+    echo "GPU $GPU_INDEX is currently in use. (Power: $POWER_DRAW / $POWER_LIMIT W, Utilization: $GPU_UTIL%, Memory: $MEMORY_USED MiB)"
+    echo "The GPU appears to be active. Terminating the process is not recommended."
+    read -p "Do you still want to proceed with terminating the process? [y/N]: " CONFIRM
     terminate_largest_gpu_process
 fi
